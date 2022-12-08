@@ -15,7 +15,7 @@
        (remove nil?)
        (first))
 
-  (->> (str/trim (slurp (io/resource "day6.txt")))
+  (->> (str/trim (slurp (io/resource "day06.txt")))
        (partition 14 1)
        (map-indexed (fn [idx chars]
                       (when (all-different? chars)
