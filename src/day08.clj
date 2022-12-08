@@ -49,7 +49,7 @@
     {:x x :y y :visible? (visible? grid x y)}))
 
 (defn untilv
-  "Returns the collection truncated by a predicate"
+  "Returns the collection up to and including when the predicate is true."
   [pred coll]
   (reduce (fn [acc v]
             (let [acc' (conj acc v)]
