@@ -30,15 +30,16 @@
   (mapcat parse-instruction input)
   (execute {:x 1} {:cmd :noop})
   (execute {:x 1} {:cmd :addx :param 4})
+
+  ;; part 1
   (->> (execute-all (mapcat parse-instruction input))
        (map (fn [{:keys [cycle x] :as state}] (assoc state :signal-strength (* cycle x))))
        (filter (fn [{:keys [cycle]}] (interesting-cycles cycle)))
        (map :signal-strength)
        (reduce +))
+
+  ;; part 2
   (->> (execute-all (mapcat parse-instruction input))
-       (map (fn [{:keys [cycle x] :as state}]
-              (assoc state :coords (coords cycle)
-                           :pixel (if (#{(dec x) x (inc x)} (first (coords cycle))) "#" "."))))
-       (map :pixel)
+       (map (fn [{:keys [cycle x]}] (if (#{(dec x) x (inc x)} (first (coords cycle))) "#" ".")))
        (partition 40)
        (map #(apply str %))))
