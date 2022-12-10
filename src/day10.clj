@@ -38,8 +38,9 @@
        (map :signal-strength)
        (reduce +))
 
+  (execute-all (mapcat parse-instruction input))
   ;; part 2
   (->> (execute-all (mapcat parse-instruction input))
-       (map (fn [{:keys [cycle x]}] (if (#{(dec x) x (inc x)} (first (coords cycle))) "#" ".")))
+       (map (fn [{:keys [cycle x]}] (if (#{(dec x) x (inc x)} (first (coords cycle))) "▓" "░")))
        (partition 40)
        (map #(apply str %))))
