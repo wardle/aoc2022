@@ -19,7 +19,7 @@
 
 (defn move-if-needed
   "Determine the tail position based on the current position and the location of head."
-  [current head]
+  [head current]
   (if (touching? current head)
     current                                                ;; if tail touching new head position, leave tail in place
     (let [[dx dy] (mapv - head current)]                   ;; otherwise, move tail towards head
@@ -29,20 +29,15 @@
               (pos? dy) (move "U")
               (neg? dy) (move "D")))))
 
-(defn move-knots
-  "Move a sequence of knots in direction 'd' (L R U D)"
+(defn move-knots'
+  "Moves a rope, with a head and subsequent knots in the direction 'd'"
   [[head & knots] d]
-  (let [head' (move head d)]
-    (loop [result [head'] knots' knots to head']
-      (if-let [knot (first knots')]
-        (let [moved (move-if-needed knot to)]
-          (recur (conj result moved) (rest knots') moved))
-        result))))
+  (reductions move-if-needed (move head d) knots))
 
 (defn perform-moves
   "A general purpose rope mover, with configurable number of knots."
   [n-knots moves]
-  (reductions move-knots (vec (repeat n-knots [0 0])) moves))
+  (reductions move-knots' (vec (repeat n-knots [0 0])) moves))
 
 
 (comment
@@ -56,7 +51,7 @@
   (->> input
        (mapcat parse-line)
        (perform-moves 2)
-       (map peek)
+       (map last)
        (into #{})
        count)
 
@@ -65,7 +60,7 @@
   (->> input
        (mapcat parse-line)
        (perform-moves 10)
-       (map peek)
+       (map last)
        (into #{})
        count))
 
