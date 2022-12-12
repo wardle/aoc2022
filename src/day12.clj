@@ -1,6 +1,5 @@
 (ns day12
-  (:require [clojure.data.priority-map :refer [priority-map]]
-            [clojure.string :as str]
+  (:require [clojure.string :as str]
             [clojure.java.io :as io]))
 
 (def directions [[1 0] [-1 0] [0 -1] [0 1]])
