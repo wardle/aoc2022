@@ -3,11 +3,6 @@
             [clojure.string :as str]
             [clojure.edn :as edn]))
 
-(defn grouped-lines [s]
-  (map #(str/split % #"\n") (str/split s #"\n\n")))
-(defn grouped-data [s]
-  (map (fn [lines] (map edn/read-string lines)) (grouped-lines s)))
-
 (defn compare-packet
   "Returns a negative number, zero, or a positive number when a is logically 'less than', 'equal to', or 'greater than' b."
   [a b]
@@ -29,7 +24,9 @@
   (def data "[1,1,3,1,1]\n[1,1,5,1,1]\n\n[[1],[2,3,4]]\n[[1],4]\n\n[9]\n[[8,7,6]]\n\n[[4,4],4,4]\n[[4,4],4,4,4]\n\n[7,7,7,7]\n[7,7,7]\n\n[]\n[3]\n\n[[[]]]\n[[]]\n\n[1,[2,[3,[4,[5,6,7]]]],8,9]\n[1,[2,[3,[4,[5,6,0]]]],8,9]")
   (def data (slurp (io/resource "day13.txt")))
   ;; part 1
-  (->> (grouped-data data)
+  (->> (str/split data #"\n\n")
+       (map #(str/split % #"\n"))
+       (map #(map edn/read-string %))
        (map-indexed (fn [i [left right]] [(inc i) (compare-packet left right)]))
        (filter (fn [[i cmp]] (>= 0 cmp)))
        (map (fn [[i cmp]] i))
