@@ -23,6 +23,8 @@
                 r1 (compare-packet a' b')]
             (if (= 0 r1) (compare-packet a-rest b-rest) r1))))
 
+(def divider-packets #{[[2]] [[6]]})
+
 (comment
   (def data "[1,1,3,1,1]\n[1,1,5,1,1]\n\n[[1],[2,3,4]]\n[[1],4]\n\n[9]\n[[8,7,6]]\n\n[[4,4],4,4]\n[[4,4],4,4,4]\n\n[7,7,7,7]\n[7,7,7]\n\n[]\n[3]\n\n[[[]]]\n[[]]\n\n[1,[2,[3,[4,[5,6,7]]]],8,9]\n[1,[2,[3,[4,[5,6,0]]]],8,9]")
   (def data (slurp (io/resource "day13.txt")))
@@ -34,11 +36,12 @@
        (reduce +))
 
   ;; part 2
-  (->> (str/split (str data "\n[[2]]\n[[6]]\n") #"\n")
+  (->> (str/split data #"\n")
        (remove str/blank?)
        (map edn/read-string)
+       (concat divider-packets)
        (sort compare-packet)
        (map-indexed (fn [i v] [(inc i) v]))
-       (filter (fn [[i v]] (or (= [[2]] v) (= [[6]] v))))
+       (filter (fn [[i v]] (divider-packets v)))
        (map (fn [[i v]] i))
        (reduce *)))
