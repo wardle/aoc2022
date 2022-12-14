@@ -28,40 +28,41 @@
   [lines] (set (mapcat points lines)))
 
 (def start-point [500 0])
-(def maximum-y 200)
 
-(defn valid-move [blocks [x y]]
-  (cond
-    (blocks [x y]) nil                                      ;; if block already there, end
-    (> y maximum-y) nil                                     ;; fallen out of world
-    (not (blocks [x (inc y)])) [0 1]                        ;; fall straight down
-    (not (blocks [(dec x) (inc y)])) [-1 1]                 ;; fall to left and down
-    (not (blocks [(inc x) (inc y)])) [1 1]                  ;; fall to right and down
-    :else [0 0]))                                           ;; sand can't move from here
+(defn valid-move
+  [blocks [x y] {:keys [void-y floor-y]}]
+  (let [y' (inc y)]
+    (cond
+      (blocks [x y]) nil                                    ;; if block already there, end
+      (and void-y (= y' void-y)) nil                        ;; fall into the void, if exists
+      (and floor-y (= y' floor-y)) [0 0]                    ;; hit a fixed floor, if exists
+      (not (blocks [x y'])) [0 1]                           ;; fall straight down
+      (not (blocks [(dec x) y'])) [-1 1]                    ;; fall to left and down
+      (not (blocks [(inc x) y'])) [1 1]                     ;; fall to right and down
+      :else [0 0])))                                        ;; sand can't move from here
 
-(defn add-sand [blocks]
+(defn add-sand
+  [blocks cfg]
   (loop [blocks blocks, n 0, sand start-point]
-    (let [move (valid-move blocks sand)]
+    (let [move (valid-move blocks sand cfg)]
       (if-not move
-        n   ;; block already there, or fallen out of world - return count
-        (if (= move [0 0])  ;; block can't move further - so store
+        n                                                   ;; block already there, or fallen out of world - return count
+        (if (= move [0 0])                                  ;; block can't move further - so store
           (recur (conj blocks sand) (inc n) start-point)
           (recur blocks n (map + sand move)))))))
 
 (comment
   (def input "498,4 -> 498,6 -> 496,6\n503,4 -> 502,4 -> 502,9 -> 494,9")
   (def input (slurp (io/resource "day14.txt")))
-  (def lines (->> (str/split input #"\n")
-                  (map parse-line)))
-  (def blocks (all-points lines))
 
+  (def blocks (->> (str/split input #"\n")
+                   (map parse-line)
+                   all-points))
   ;; part 1
-  (add-sand blocks)   ; => 592 (49 milliseconds)
+  (time (add-sand blocks {:void-y (+ 10 (apply max (map second blocks)))})) ; => 592 (49 milliseconds)
 
   ;; part 2
-  (def floor-y (+ 2 (apply max (map second blocks))))
-  (def blocks' (set/union blocks (points [[-10000 floor-y] [10000 floor-y]])))
-  (add-sand blocks'))  ; => 30367  (2393 milliseconds)
+  (time (add-sand blocks {:floor-y (+ 2 (apply max (map second blocks)))}))) ; => 30367  (2313 milliseconds)
 
 
 
