@@ -30,12 +30,12 @@
 (def start-point [500 0])
 
 (defn valid-move
-  [blocks [x y] {:keys [void-y floor-y]}]
+  [blocks [x y] {:keys [void floor]}]
   (let [y' (inc y)]
     (cond
       (blocks [x y]) nil                                    ;; if block already there, end
-      (and void-y (= y' void-y)) nil                        ;; fall into the void, if exists
-      (and floor-y (= y' floor-y)) [0 0]                    ;; hit a fixed floor, if exists
+      (and void (= y' void)) nil                            ;; fall into the void, if exists
+      (and floor (= y' floor)) [0 0]                        ;; hit a fixed floor, if exists
       (not (blocks [x y'])) [0 1]                           ;; fall straight down
       (not (blocks [(dec x) y'])) [-1 1]                    ;; fall to left and down
       (not (blocks [(inc x) y'])) [1 1]                     ;; fall to right and down
@@ -47,9 +47,9 @@
     (let [move (valid-move blocks sand cfg)]
       (if-not move
         n                                                   ;; block already there, or fallen out of world - return count
-        (if (= move [0 0])                                  ;; block can't move further - so store
+        (if (= move [0 0])                                  ;; block can't move further - so store at current loc
           (recur (conj blocks sand) (inc n) start-point)
-          (recur blocks n (map + sand move)))))))
+          (recur blocks n (map + sand move)))))))           ;; block keeps moving
 
 (comment
   (def input "498,4 -> 498,6 -> 496,6\n503,4 -> 502,4 -> 502,9 -> 494,9")
@@ -59,10 +59,10 @@
                    (map parse-line)
                    all-points))
   ;; part 1
-  (time (add-sand blocks {:void-y (+ 10 (apply max (map second blocks)))})) ; => 592 (49 milliseconds)
+  (time (add-sand blocks {:void (inc (apply max (map second blocks)))})) ; => 592 (49 milliseconds)
 
   ;; part 2
-  (time (add-sand blocks {:floor-y (+ 2 (apply max (map second blocks)))}))) ; => 30367  (2313 milliseconds)
+  (time (add-sand blocks {:floor (+ 2 (apply max (map second blocks)))}))) ; => 30367  (2313 milliseconds)
 
 
 
