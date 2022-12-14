@@ -48,17 +48,6 @@
           (recur (conj blocks sand) (inc n) start-point)
           (recur blocks n (map + sand move)))))))
 
-(defn draw [blocks]
-  (let [min-x (apply min (map first blocks))
-        max-x (inc (apply max (map first blocks)))
-        max-y (inc (apply max (map second blocks)))]
-    (->>(for [x (range min-x max-x)
-              y (range max-y)]
-          (if (blocks [x y]) "#" "."))
-        (partition-all (- max-x min-x))
-        (mapv #(apply str %)))))
-
-
 (comment
   (def input "498,4 -> 498,6 -> 496,6\n503,4 -> 502,4 -> 502,9 -> 494,9")
   (def input (slurp (io/resource "day14.txt")))
@@ -72,8 +61,8 @@
   ;; part 2
   (def floor-y (+ 2 (apply max (map second blocks))))
   (def blocks' (set/union blocks (points [[-10000 floor-y] [10000 floor-y]])))
-  (add-sand blocks')
-  (draw blocks))
+  (add-sand blocks'))  ; => 30367  (2393 milliseconds)
+
 
 
 
